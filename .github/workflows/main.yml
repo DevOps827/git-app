@@ -39,10 +39,3 @@ jobs:
     # ✅ Step 6: Publish Artifacts
     - name: Publish
       run: dotnet publish -c Release -o ./publish
-
-    # ✅ Step 7: Upload Build Artifacts (Optional)
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: published-app
-        path: ./publish
