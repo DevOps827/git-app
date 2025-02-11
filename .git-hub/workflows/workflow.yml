@@ -1,23 +1,48 @@
-name: PipelineWorkflow
+﻿name: .NET Build and Deploy Workflow
 
 on:
-   push:
-     branches:
-        - main
-   pull_request:
-     branches:
-        - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-   build:
-      name: Azure Pipeline
-      runs-on: ubuntu-latest
-      steps:
-      - name: Azure Pipelines Action
-        uses: Azure/pipelines@v1
-        with: 
-          azure-devops-project-url: https://dev.azure.com/brahati2002/Agile
-          azure-pipeline-name: 'WebApplication1'
-          azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
-       
-    
+  build:
+    name: Build & Test .NET Application
+    runs-on: ubuntu-latest  # You can switch to windows-latest if needed for VS-specific features
+
+    steps:
+    # ✅ Step 1: Checkout Code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # ✅ Step 2: Setup .NET SDK
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'  # Specify your project's .NET version
+
+    # ✅ Step 3: Restore Dependencies
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # ✅ Step 4: Build the Application
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    # ✅ Step 5: Run Tests (Optional)
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    # ✅ Step 6: Publish Artifacts
+    - name: Publish
+      run: dotnet publish -c Release -o ./publish
+
+    # ✅ Step 7: Upload Build Artifacts (Optional)
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: published-app
+        path: ./publish
